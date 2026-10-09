@@ -7,6 +7,22 @@ Album photo et vidéo familial : consultation par toute la famille (téléphone,
 > Le site demande aux moteurs de recherche de ne pas le référencer (`noindex`), mais ce n'est qu'une consigne, pas un verrou. Si le lien est transféré, la personne qui le reçoit voit tout.
 > N'envoyez donc le lien qu'à la famille, et ne publiez rien que vous ne voudriez pas voir circuler.
 
+## Votre installation (en ligne depuis le 9 octobre 2026)
+
+| Quoi | Adresse |
+|---|---|
+| Lien à envoyer à la famille | https://gaetansbaffi.github.io/album-corse/ |
+| Lien pour l'organisatrice (ouvre la fenêtre du mot de passe) | https://gaetansbaffi.github.io/album-corse/#edition |
+| API (Worker Cloudflare) | https://album-corse.album-corse.workers.dev |
+| Dépôt GitHub | https://github.com/gaetansbaffi/album-corse |
+| Stockage R2 | bucket `album-corse-medias` (compte Cloudflare gaetan@cocolocal.fr) |
+
+Outils portables installés dans `outils/` : Node.js, git, gh (GitHub CLI). Pour les utiliser dans une nouvelle fenêtre PowerShell :
+
+```powershell
+$env:Path = "$PWD\outils\node;$PWD\outils\git\cmd;$PWD\outils\gh\bin;$env:Path"
+```
+
 ---
 
 ## Sommaire
