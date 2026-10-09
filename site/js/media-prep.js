@@ -13,19 +13,53 @@ export class PrepError extends Error {}
 const pad = (n) => String(n).padStart(2, '0');
 const localIso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 
-async function shotDate(file) {
-  if (file.type.startsWith('image/') && window.exifr) {
+const isVideoFile = (file) => file.type.startsWith('video/') || /\.(mp4|mov|m4v)$/i.test(file.name);
+
+/** Date d'enregistrement inscrite dans une vidéo MP4/MOV (bloc « mvhd », secondes depuis 1904). */
+async function videoCreationDate(file) {
+  const moov = (await readBoxes(file, 0, file.size)).find((b) => b.type === 'moov');
+  if (!moov) return null;
+  const bytes = new Uint8Array(await file.slice(moov.off, moov.off + Math.min(moov.size, 4096)).arrayBuffer());
+  const view = new DataView(bytes.buffer);
+  for (let i = 8; i + 24 < bytes.length; i++) {
+    if (bytes[i] === 0x6d && bytes[i + 1] === 0x76 && bytes[i + 2] === 0x68 && bytes[i + 3] === 0x64) { // « mvhd »
+      const version = bytes[i + 4];
+      const secs = version === 1 ? Number(view.getBigUint64(i + 8)) : view.getUint32(i + 8);
+      if (!secs) return null;
+      const d = new Date((secs - 2082844800) * 1000);
+      // Rejette les dates absurdes (horloge non réglée, valeur par défaut…)
+      return d.getFullYear() >= 2015 && d <= new Date(Date.now() + 86400000) ? d : null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Date de prise de vue et sa fiabilité :
+ *  - 'photo' : date enregistrée par l'appareil (EXIF ou vidéo) → fiable ;
+ *  - 'whatsapp' / 'nom' / 'fichier' : déduite autrement → à vérifier.
+ */
+export async function detectDate(file) {
+  if (!isVideoFile(file) && window.exifr) {
     try {
       // (la version « lite » d'exifr n'accepte pas la forme parse(fichier, [liste de champs]))
       const exif = await window.exifr.parse(file);
       const d = exif?.DateTimeOriginal || exif?.CreateDate;
-      if (d instanceof Date && !isNaN(d)) return localIso(d);
+      if (d instanceof Date && !isNaN(d)) return { takenAt: localIso(d), source: 'photo' };
     } catch { /* pas d'EXIF lisible */ }
   }
+  // WhatsApp efface la date des photos et ré-encode les vidéos : la date de son nom de fichier est celle de l'envoi.
   let m = file.name.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
-  if (!m) m = file.name.match(/(20\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})/);
-  if (m) return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
-  return localIso(new Date(file.lastModified || Date.now()));
+  if (m) return { takenAt: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`, source: 'whatsapp' };
+  if (isVideoFile(file)) {
+    try {
+      const d = await videoCreationDate(file);
+      if (d) return { takenAt: localIso(d), source: 'photo' };
+    } catch { /* structure illisible : on continue */ }
+  }
+  m = file.name.match(/(20\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})/);
+  if (m) return { takenAt: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`, source: 'nom' };
+  return { takenAt: localIso(new Date(file.lastModified || Date.now())), source: 'fichier' };
 }
 
 /* ---------------------------------------------------------------- photos */
@@ -239,11 +273,13 @@ async function prepareVideo(file) {
 
 /* ---------------------------------------------------------------- point d'entrée */
 
-export async function prepareFile(file) {
-  const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|m4v)$/i.test(file.name);
+/** `day` (AAAA-MM-JJ) : jour choisi par l'utilisatrice, prioritaire sur la date détectée. */
+export async function prepareFile(file, { day } = {}) {
+  const isVideo = isVideoFile(file);
   const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
   if (!isVideo && !isImage) throw new PrepError('Ce fichier n’est ni une photo ni une vidéo.');
-  const takenAt = await shotDate(file);
+  let { takenAt } = await detectDate(file);
+  if (day && day !== takenAt.slice(0, 10)) takenAt = `${day}${takenAt.slice(10)}`; // garde l'heure, change le jour
   const result = isVideo ? await prepareVideo(file) : await preparePhoto(file);
   return { ...result, takenAt, day: takenAt.slice(0, 10) };
 }

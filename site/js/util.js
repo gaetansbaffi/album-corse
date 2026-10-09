@@ -13,7 +13,7 @@ export function el(tag, attrs = {}, ...children) {
     else if (k === 'html') throw new Error('html interdit');
     else node.setAttribute(k, v === true ? '' : v);
   }
-  for (const child of children.flat()) {
+  for (const child of children.flat(Infinity)) {
     if (child === null || child === undefined || child === false) continue;
     node.append(child instanceof Node ? child : document.createTextNode(String(child)));
   }

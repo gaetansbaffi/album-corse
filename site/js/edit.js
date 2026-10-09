@@ -1,6 +1,6 @@
 // Mode édition : réservé à la personne qui connaît le mot de passe (vérifié par le serveur).
-import { API, el, icon, mediaUrl, formatDay, plural, toast } from './util.js';
-import { prepareFile, PrepError, MAX_VIDEO_MB } from './media-prep.js';
+import { API, el, icon, mediaUrl, formatDay, dayNumber, plural, toast } from './util.js';
+import { prepareFile, detectDate, PrepError, MAX_VIDEO_MB } from './media-prep.js';
 
 const TOKEN_KEY = 'album-edit-token';
 const EXPIRES_KEY = 'album-edit-expires';
@@ -11,6 +11,7 @@ const I = {
   trash: 'M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13M10.5 11v5.5M13.5 11v5.5',
   plus: 'M12 4.5v15M4.5 12h15',
   undo: 'M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  calendar: 'M4.5 6.5h15v13h-15zM4.5 10.5h15M8.5 4v4.5M15.5 4v4.5',
   grip: 'M9 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm9 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM9 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm9 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM9 18.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm9 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z',
 };
 
@@ -266,19 +267,22 @@ function decorateCard(li, item, index) {
   li.prepend(el('span', { class: 'card__handle', title: 'Glisser pour déplacer', 'aria-hidden': 'true' }, icon(I.grip)));
   li.append(el('div', { class: 'card__tools' },
     toolButton(I.pen, 'Légende', `Écrire la légende de ${what}`, () => editCaption(item), { name: 'caption' }),
-    toolButton(I.trash, 'Supprimer', `Supprimer ${what}`, () => confirmDelete(item), { danger: true, name: 'delete' }),
+    toolButton(I.calendar, 'Date', `Changer la date de ${what}`, () => editItemDate(item), { name: 'date' }),
     toolButton(I.up, 'Monter', `Monter ${what} d’un cran`, () => move(item.id, -1), { disabled: index === 0, name: 'up' }),
     toolButton(I.down, 'Descendre', `Descendre ${what} d’un cran`, () => move(item.id, 1), { disabled: index === total - 1, name: 'down' }),
+    toolButton(I.trash, 'Supprimer', `Supprimer ${what}`, () => confirmDelete(item), { danger: true, name: 'delete' }),
   ));
   if (item.codecWarning) li.append(el('p', { class: 'card__warn' }, 'Format HEVC : cette vidéo risque de ne pas se lire sur certains appareils.'));
 }
 
 function decorateDay(section, day) {
   const title = app.album.days?.[day]?.title;
-  section.querySelector('.day__text').append(
+  section.querySelector('.day__text').append(el('div', { class: 'day__actions' },
     el('button', { class: 'btn btn--outline day__rename', type: 'button', onclick: () => editDayTitle(day) },
       icon(I.pen), title ? 'Renommer la journée' : 'Donner un nom à cette journée'),
-  );
+    el('button', { class: 'btn btn--outline day__rename', type: 'button', onclick: () => editDayDate(day) },
+      icon(I.calendar, { fill: false }), 'Changer la date de toute la journée'),
+  ));
 }
 
 function afterRender() {
@@ -350,8 +354,6 @@ function editCaption(item) {
   caption.value = item.caption || '';
   const place = el('input', { id: 'place', type: 'text', maxlength: '80', list: 'places', autocomplete: 'off', placeholder: 'Ex. : Bonifacio' });
   place.value = item.place || '';
-  const day = el('input', { id: 'day', type: 'date', required: true });
-  day.value = item.day;
   const counter = el('small', { id: 'cap-count' });
   const updateCount = () => { counter.textContent = `${caption.value.length} / 300 caractères`; };
   caption.addEventListener('input', updateCount);
@@ -365,7 +367,6 @@ function editCaption(item) {
     el('div', { class: 'field' }, el('label', { for: 'cap' }, 'Légende'), caption, counter),
     el('div', { class: 'field' }, el('label', { for: 'place' }, 'Lieu ', el('small', {}, '(facultatif)')), place,
       el('datalist', { id: 'places' }, places.map((p) => el('option', { value: p })))),
-    el('div', { class: 'field' }, el('label', { for: 'day' }, 'Jour'), day, el('small', {}, 'Changez la date seulement si la photo n’est pas dans la bonne journée.')),
     error,
     el('div', { class: 'modal__actions' },
       el('button', { class: 'btn btn--outline btn--big', type: 'button', onclick: () => dialog.close() }, 'Annuler'),
@@ -383,14 +384,10 @@ function editCaption(item) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!day.value) {
-      error.textContent = 'Choisissez un jour.';
-      return day.focus();
-    }
     save.disabled = true;
     save.textContent = 'Enregistrement…';
     try {
-      app.setAlbum(await api('PATCH', `/api/items/${item.id}`, { caption: caption.value, place: place.value, day: day.value }));
+      app.setAlbum(await api('PATCH', `/api/items/${item.id}`, { caption: caption.value, place: place.value }));
       dialog.close();
       toast('Légende enregistrée.', { type: 'ok', duration: 3000 });
       document.querySelector(`.card[data-id="${item.id}"] [data-edit="caption"]`)?.focus();
@@ -430,6 +427,75 @@ function editDayTitle(day) {
       error.textContent = err.message;
     }
   });
+}
+
+/* ---------------------------------------------------------------- dates */
+
+/** Choix d'un jour : un gros bouton par journée de l'album, plus n'importe quelle autre date. */
+function dayPicker(current, onPick) {
+  const days = [...new Set(app.album.items.map((i) => i.day))].filter((d) => d !== current);
+  const other = el('input', { id: 'other-day', type: 'date' });
+  other.value = current;
+  return [
+    days.length ? el('p', { class: 'day-picker__label' }, 'Touchez la bonne journée :') : null,
+    el('div', { class: 'day-picker' }, days.map((d) => el('button', { class: 'btn btn--outline day-choice', type: 'button', onclick: () => onPick(d) },
+      el('b', {}, `Jour ${dayNumber(d, app.firstDay)}`), ` · ${formatDay(d)}`))),
+    el('div', { class: 'field' },
+      el('label', { for: 'other-day' }, days.length ? 'Ou choisissez une autre date :' : 'Nouvelle date :'),
+      el('div', { class: 'password-row' }, other,
+        el('button', { class: 'btn btn--primary', type: 'button', onclick: () => (other.value ? onPick(other.value) : other.focus()) }, 'Valider'))),
+  ];
+}
+
+function editItemDate(item) {
+  const what = item.type === 'video' ? 'la vidéo' : 'la photo';
+  const dialog = modal([
+    el('h2', {}, `Date de ${what}`),
+    el('img', { class: 'modal__thumb', src: mediaUrl(item, 'm.jpg'), alt: '' }),
+    el('p', {}, 'Actuellement rangée au ', el('strong', {}, formatDay(item.day)), '.'),
+    dayPicker(item.day, async (day) => {
+      dialog.close();
+      if (day === item.day) return;
+      try {
+        app.setAlbum(await api('PATCH', `/api/items/${item.id}`, { day }));
+        toast(`Déplacée au ${formatDay(day)}.`, { type: 'ok', duration: 4000 });
+        const card = document.querySelector(`.card[data-id="${item.id}"]`);
+        card?.scrollIntoView({ block: 'center' });
+        card?.querySelector('[data-edit="date"]')?.focus({ preventScroll: true });
+      } catch (err) {
+        showError(err);
+      }
+    }),
+    el('div', { class: 'modal__actions' }, el('button', { class: 'btn btn--outline btn--big', type: 'button', onclick: () => dialog.close() }, 'Annuler')),
+  ], { label: `Date de ${what}` });
+}
+
+function editDayDate(day) {
+  const moving = app.album.items.filter((i) => i.day === day);
+  const dialog = modal([
+    el('h2', {}, 'Changer la date de toute la journée'),
+    el('p', {}, `${plural(moving.length, 'média', 'médias')} du `, el('strong', {}, formatDay(day)), ' vont être déplacés ensemble.'),
+    dayPicker(day, async (target) => {
+      dialog.close();
+      if (target === day) return;
+      const days = Object.fromEntries(moving.map((i) => [i.id, target]));
+      try {
+        let album = await api('PUT', '/api/order', { order: app.album.items.map((i) => i.id), days });
+        // Le nom de la journée suit ses photos si la journée d'arrivée n'en a pas
+        const title = app.album.days?.[day]?.title;
+        if (title && !album.days?.[target]?.title) {
+          await api('PATCH', `/api/days/${target}`, { title });
+          album = await api('PATCH', `/api/days/${day}`, { title: '' });
+        }
+        app.setAlbum(album);
+        toast(`${plural(moving.length, 'média déplacé', 'médias déplacés')} au ${formatDay(target)}.`, { type: 'ok', duration: 5000 });
+        document.getElementById(`jour-${target}`)?.scrollIntoView({ block: 'start' });
+      } catch (err) {
+        showError(err);
+      }
+    }),
+    el('div', { class: 'modal__actions' }, el('button', { class: 'btn btn--outline btn--big', type: 'button', onclick: () => dialog.close() }, 'Annuler')),
+  ], { label: 'Changer la date de la journée' });
 }
 
 /* ---------------------------------------------------------------- suppression, annulation, corbeille */
@@ -535,7 +601,7 @@ function putFile(url, blob, onProgress) {
   });
 }
 
-async function uploadOne(file, row) {
+async function uploadOne(file, row, day) {
   const status = row.querySelector('.upload__status');
   const bar = row.querySelector('progress');
   const set = (text, cls) => {
@@ -545,7 +611,7 @@ async function uploadOne(file, row) {
   row.querySelector('.upload__retry')?.remove();
   try {
     set('Préparation…', 'busy');
-    const prepared = await prepareFile(file);
+    const prepared = await prepareFile(file, { day });
     const thumb = row.querySelector('img');
     thumb.src = URL.createObjectURL(prepared.files['s.jpg']);
 
@@ -577,7 +643,7 @@ async function uploadOne(file, row) {
     set(err.message || 'Erreur inconnue.', 'error');
     // Réessayer n'a de sens que pour un problème d'envoi (réseau…), pas pour un fichier refusé
     if (!(err instanceof PrepError)) {
-      row.querySelector('.upload__info').append(el('button', { class: 'btn btn--outline upload__retry', type: 'button', onclick: () => runQueue([[file, row]]) }, 'Réessayer'));
+      row.querySelector('.upload__info').append(el('button', { class: 'btn btn--outline upload__retry', type: 'button', onclick: () => runQueue([[file, row, day]]) }, 'Réessayer'));
     }
     return false;
   }
@@ -599,9 +665,9 @@ async function runQueue(queue) {
   window.addEventListener('beforeunload', beforeUnload);
   let ok = 0;
   try {
-    for (const [i, [file, row]] of queue.entries()) {
+    for (const [i, [file, row, day]] of queue.entries()) {
       uploadSummary.textContent = `Envoi ${i + 1} sur ${queue.length}. Gardez cette page ouverte.`;
-      if (await uploadOne(file, row)) ok++;
+      if (await uploadOne(file, row, day)) ok++;
     }
   } catch { /* session expirée : on s'arrête */ }
   uploading = false;
@@ -615,17 +681,83 @@ async function runQueue(queue) {
   uploadClose.focus();
 }
 
+const thumbFor = (file) => (file.type.startsWith('image/') ? URL.createObjectURL(file) : 'img/favicon.svg');
+
+/** Étape 1 : vérifier (et corriger si besoin) la date de chaque fichier avant l'envoi. */
 function uploadFiles(files) {
-  const rows = files.map((file) => {
-    const isImage = file.type.startsWith('image/');
+  const rows = files.map((file, i) => {
+    const input = el('input', { type: 'date', required: true, id: `date-${i}`, class: 'upload__date' });
+    const badge = el('p', { class: 'date-badge' }, 'Recherche de la date…');
+    input.addEventListener('input', () => {
+      badge.textContent = '✎ Date choisie par vous';
+      badge.className = 'date-badge is-sure';
+    });
+    const row = el('li', { class: 'upload__row' },
+      el('img', { src: thumbFor(file), alt: '', width: '64', height: '64' }),
+      el('div', { class: 'upload__info' },
+        el('label', { class: 'upload__name', for: `date-${i}` }, file.name),
+        input, badge));
+    detectDate(file).then(({ takenAt, source }) => {
+      if (!input.value) input.value = takenAt.slice(0, 10);
+      if (badge.textContent !== 'Recherche de la date…') return;
+      const sure = source === 'photo';
+      badge.textContent = sure ? '✓ Date enregistrée par l’appareil'
+        : source === 'whatsapp' ? '⚠ Date d’envoi WhatsApp : vérifiez si c’est le jour de la photo'
+          : '⚠ Date incertaine : vérifiez-la';
+      badge.className = `date-badge ${sure ? 'is-sure' : 'is-unsure'}`;
+    });
+    return { file, input, badge, row };
+  });
+
+  const all = el('input', { id: 'all-day', type: 'date' });
+  const error = el('p', { class: 'form-error', role: 'alert' });
+  const form = el('form', { novalidate: true },
+    el('h2', {}, 'Vérifiez les dates'),
+    el('p', {}, 'Chaque photo se range dans la journée de sa date. Corrigez une date si elle n’est pas la bonne.'),
+    el('div', { class: 'field' },
+      el('label', { for: 'all-day' }, 'Mettre la même date à tous les fichiers :'),
+      el('div', { class: 'password-row' }, all, el('button', {
+        class: 'btn btn--outline', type: 'button',
+        onclick: () => {
+          if (!all.value) return all.focus();
+          rows.forEach((r) => {
+            r.input.value = all.value;
+            r.badge.textContent = '✎ Date choisie par vous';
+            r.badge.className = 'date-badge is-sure';
+          });
+        },
+      }, 'Appliquer'))),
+    el('ul', { class: 'upload__list' }, rows.map((r) => r.row)),
+    error,
+    el('div', { class: 'modal__actions' },
+      el('button', { class: 'btn btn--outline btn--big', type: 'button', onclick: () => dialog.close() }, 'Annuler'),
+      el('button', { class: 'btn btn--primary btn--big', type: 'submit' }, `Envoyer ${plural(files.length, 'fichier', 'fichiers')}`),
+    ),
+  );
+  const dialog = modal(form, { label: 'Dates des fichiers' });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const missing = rows.find((r) => !r.input.value);
+    if (missing) {
+      error.textContent = 'Il manque une date : complétez-la avant d’envoyer.';
+      return missing.input.focus();
+    }
+    dialog.close();
+    startUpload(rows.map((r) => [r.file, r.input.value]));
+  });
+}
+
+/** Étape 2 : préparation et envoi, un fichier après l'autre. */
+function startUpload(entries) {
+  const rows = entries.map(([file, day]) => {
     return [file, el('li', { class: 'upload__row' },
-      el('img', { src: isImage ? URL.createObjectURL(file) : 'img/favicon.svg', alt: '', width: '64', height: '64' }),
+      el('img', { src: thumbFor(file), alt: '', width: '64', height: '64' }),
       el('div', { class: 'upload__info' },
         el('p', { class: 'upload__name' }, file.name),
         el('progress', { max: '100', value: '0' }),
         el('p', { class: 'upload__status' }, 'En attente'),
       ),
-    )];
+    ), day];
   });
   uploadSummary = el('p', { class: 'upload__summary', role: 'status' });
   uploadClose = el('button', { class: 'btn btn--primary btn--big', type: 'button', onclick: () => uploadDialog.close() }, 'Fermer');

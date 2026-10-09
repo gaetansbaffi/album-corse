@@ -282,14 +282,21 @@ Ensuite, envoyez `sortie.mp4` par le mode édition, ou placez-la dans un dossier
 > À imprimer ou à lui envoyer.
 
 1. **Ouvrir le mode édition** : touchez le **crayon** en haut à droite (ou le lien spécial qu'on vous a donné), tapez le mot de passe, puis **Entrer**. Le bouton **Afficher** montre ce que vous tapez.
-2. **Ajouter des photos ou vidéos** : touchez le grand bouton **« + Ajouter des photos ou vidéos »** en bas, puis choisissez une ou plusieurs photos. Gardez la page ouverte pendant l'envoi. Les photos se rangent toutes seules dans la bonne journée.
+2. **Ajouter des photos ou vidéos** : touchez le grand bouton **« + Ajouter des photos ou vidéos »** en bas, puis choisissez une ou plusieurs photos.
+   - L'écran **« Vérifiez les dates »** s'ouvre et montre la date trouvée pour chaque photo :
+     - **✓ vert** : c'est la date enregistrée par le téléphone, elle est sûre ;
+     - **⚠ orange** : date incertaine (par exemple, photo reçue par WhatsApp). Corrigez-la si besoin.
+   - Pour mettre la même date à toutes les photos : choisissez-la en haut, puis touchez **Appliquer**.
+   - Touchez **Envoyer**, puis gardez la page ouverte pendant l'envoi.
 3. **Écrire une légende** : sous la photo, touchez **Légende**, écrivez, ajoutez un lieu si vous voulez, puis **Enregistrer**.
-4. **Changer l'ordre** : sous la photo, touchez **Monter** ou **Descendre**. Sur ordinateur, on peut aussi faire glisser la photo par la poignée (les petits points en haut à droite).
-5. **Supprimer** : touchez **Supprimer**, puis confirmez avec **Oui, supprimer**.
+4. **Changer la date d'une photo** : sous la photo, touchez **Date**, puis touchez la bonne journée dans la liste (ou choisissez une autre date). La photo part dans cette journée.
+   - Pour déplacer **toutes les photos d'une journée** d'un coup : sous la date de la journée, touchez **Changer la date de toute la journée**.
+5. **Changer l'ordre** : sous la photo, touchez **Monter** ou **Descendre**. Sur ordinateur, on peut aussi faire glisser la photo par la poignée (les petits points en haut à droite).
+6. **Supprimer** : touchez **Supprimer**, puis confirmez avec **Oui, supprimer**.
    - Vous vous êtes trompée ? Touchez **Annuler** dans le message en bas de l'écran, ou **Annuler la suppression** dans la barre verte en haut.
    - Plus tard, la **Corbeille** permet de remettre une photo pendant 30 jours.
-6. **Nommer une journée** : sous la date, touchez **Donner un nom à cette journée** (par exemple « Bonifacio »).
-7. Le mode édition se ferme tout seul au bout de 12 heures. Il suffit alors de retaper le mot de passe. Touchez **Quitter** si vous prêtez votre téléphone.
+7. **Nommer une journée** : sous la date, touchez **Donner un nom à cette journée** (par exemple « Bonifacio »).
+8. Le mode édition se ferme tout seul au bout de 12 heures. Il suffit alors de retaper le mot de passe. Touchez **Quitter** si vous prêtez votre téléphone.
 
 ## 10. Quotas et coûts
 
@@ -311,7 +318,8 @@ Le garde-fou `STORAGE_LIMIT_MB` refuse les envois avant d'atteindre les 10 Go.
 ## 11. Limites et risques connus
 
 - **Confidentialité** : l'album est accessible à toute personne qui a le lien (voir l'encadré en haut). Les adresses des fichiers sont longues et aléatoires, mais elles ne sont pas secrètes.
-- **Photos WhatsApp** : WhatsApp a déjà réduit les photos à 1280 px et effacé leur date de prise de vue. La date utilisée est celle du nom du fichier, c'est-à-dire **l'envoi WhatsApp**, en général le jour même. Pour une meilleure qualité, demandez les originaux, par exemple par e-mail ou via « Envoyer en tant que document ».
+- **Photos WhatsApp** : WhatsApp a déjà réduit les photos à 1280 px et effacé leur date de prise de vue. La date utilisée est celle du nom du fichier, c'est-à-dire **l'envoi WhatsApp**, qui n'est pas forcément le jour de la photo. Corrigez-la avec le bouton **Date**, ou **Changer la date de toute la journée**. Pour une meilleure qualité, demandez les originaux, par exemple par e-mail ou via « Envoyer en tant que document ».
+- **Photos ajoutées directement depuis le téléphone** : la date de prise de vue est lue dans la photo (EXIF) avant que les informations sensibles soient retirées. Pour les vidéos, c'est la date d'enregistrement inscrite dans le fichier. Si un téléphone ou une application a retiré cette date, l'album affiche « ⚠ date incertaine » et utilise la date du fichier, à vérifier.
 - **Photos iPhone HEIC** envoyées depuis un ordinateur Windows : Chrome ne sait pas les lire, et un message clair s'affiche. Depuis l'iPhone lui-même, la conversion est automatique.
 - **Deux appareils modifiant en même temps** : rare dans un usage familial. Si l'ordre a changé ailleurs, l'album se recharge et le déplacement est à refaire.
 - **Session expirée pendant la saisie d'une légende** : le texte tapé est perdu et il faut le retaper après reconnexion.

@@ -466,7 +466,30 @@ html:has(body.is-editing) { scroll-padding-top: calc(var(--topbar-h) + 130px); }
 .card__warn { margin: 6px 0 0; font-size: .85rem; color: var(--danger); }
 .card.is-ghost { opacity: .35; outline: 3px dashed var(--accent); }
 .card.is-chosen { box-shadow: 0 12px 40px rgb(0 0 0 / .35); }
+.card__tools [data-edit="delete"] { grid-column: 1 / -1; }
+.day__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: .5rem; }
+.day__actions .day__rename { margin-top: 0; }
 .day__rename { margin-top: .5rem; min-height: 44px; font-size: .95rem; padding: .35rem .9rem; }
+.day-picker__label { font-weight: 650; margin-bottom: .5rem !important; }
+.day-picker { display: grid; gap: 8px; margin-bottom: 1.1rem; max-height: 40vh; overflow: auto; }
+.day-choice { justify-content: flex-start; text-align: left; border-radius: 12px; font-weight: 500; }
+.day-choice b { font-weight: 750; }
+.upload__date {
+  display: block; width: 100%; margin: .35rem 0 .2rem;
+  min-height: 48px; padding: .5rem .7rem; font-size: 1.05rem;
+  border: 2px solid color-mix(in srgb, var(--ink) 28%, transparent); border-radius: 10px;
+  background: var(--card); color: var(--ink);
+}
+label.upload__name { display: block; }
+.date-badge { margin: 0; font-size: .92rem; font-weight: 600; color: var(--ink-soft); }
+.date-badge.is-sure { color: #2f7d3a; }
+.date-badge.is-unsure { color: #a45a00; }
+:root[data-theme="dark"] .date-badge.is-sure { color: #8fd49a; }
+:root[data-theme="dark"] .date-badge.is-unsure { color: #ffc46b; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .date-badge.is-sure { color: #8fd49a; }
+  :root:not([data-theme="light"]) .date-badge.is-unsure { color: #ffc46b; }
+}
 .day__rename svg { width: 18px; height: 18px; }
 .is-editing .grid { min-height: 80px; }
 
@@ -477,7 +500,7 @@ html:has(body.is-editing) { scroll-padding-top: calc(var(--topbar-h) + 130px); }
 .is-editing .footer { padding-bottom: 110px; }
 .is-editing .toasts { bottom: calc(96px + env(safe-area-inset-bottom)); }
 
-.trash-list, .upload__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-height: 50vh; overflow: auto; }
+.trash-list, .upload__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; max-height: 50vh; overflow: auto; }
 .trash-list li, .upload__row { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 10px; background: var(--paper); }
 .trash-list img, .upload__row img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; flex: none; background: var(--paper-2); }
 .trash-list p { margin: 0 0 .5rem; }

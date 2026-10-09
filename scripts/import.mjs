@@ -72,8 +72,17 @@ async function shotDate(file) {
     if (d instanceof Date && !isNaN(d)) return { iso: localIso(d), source: 'EXIF' };
   } catch { /* pas d'EXIF */ }
   const name = basename(file);
-  let m = name.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/); // WhatsApp
-  if (!m) m = name.match(/(20\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})/); // IMG_20261004_072839
+  // WhatsApp : date d'envoi (WhatsApp efface la date des photos et ré-encode les vidéos)
+  let m = name.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
+  if (m) return { iso: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`, source: 'envoi WhatsApp, à vérifier' };
+  if (VIDEO_EXT.has(extname(file).toLowerCase())) {
+    try {
+      const created = probe(file).format?.tags?.creation_time; // date d'enregistrement de la vidéo (UTC)
+      const d = created && new Date(created);
+      if (d && !isNaN(d) && d.getFullYear() >= 2015) return { iso: localIso(d), source: 'vidéo' };
+    } catch { /* pas de date dans la vidéo */ }
+  }
+  m = name.match(/(20\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})/); // IMG_20261004_072839
   if (m) return { iso: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`, source: 'nom du fichier' };
   return { iso: localIso(statSync(file).mtime), source: 'date du fichier' };
 }
