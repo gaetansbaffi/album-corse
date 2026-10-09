@@ -1,0 +1,4 @@
+# Copiez ce fichier en worker/.dev.vars pour tester en local (ce fichier-là n'est jamais versionné).
+# En production, ces valeurs se règlent avec : npx wrangler secret put NOM --config worker/wrangler.toml
+ADMIN_PASSWORD=changez-moi
+SESSION_SECRET=remplacez-par-une-longue-chaine-aleatoire-de-48-caracteres-minimum

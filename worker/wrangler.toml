@@ -1,0 +1,25 @@
+# Configuration du Worker Cloudflare (API de l'album).
+# Les secrets (ADMIN_PASSWORD, SESSION_SECRET) ne sont JAMAIS écrits ici :
+#   - en production : npx wrangler secret put ADMIN_PASSWORD --config worker/wrangler.toml
+#   - en local      : fichier worker/.dev.vars (non versionné, voir .dev.vars.example)
+
+name = "album-corse"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "album-corse-medias"
+
+[vars]
+# Adresses autorisées à modifier l'album (séparées par des virgules).
+# Remplacez par l'adresse de votre site GitHub Pages, par ex. https://votre-compte.github.io
+ALLOWED_ORIGINS = "https://gaetansbaffi.github.io,http://localhost:8080,http://127.0.0.1:8080"
+# Durée d'une session d'édition, en heures.
+SESSION_HOURS = "12"
+# Taille maximale d'une vidéo envoyée, en Mo (le plan gratuit Cloudflare plafonne à 100 Mo par requête).
+MAX_VIDEO_MB = "95"
+# Garde-fou : refuse les envois au-delà de ce volume total (le gratuit R2 = 10 Go).
+STORAGE_LIMIT_MB = "9000"
+# Nombre de jours pendant lesquels un média supprimé reste récupérable.
+TRASH_DAYS = "30"

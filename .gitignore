@@ -1,0 +1,19 @@
+# Outils locaux et dépendances
+outils/
+.claude/
+node_modules/
+.wrangler/
+
+# Secrets locaux : ne jamais publier
+.dev.vars
+worker/.dev.vars
+.env
+
+# Photos et vidéos : elles vivent dans Cloudflare R2, PAS dans le dépôt (qui est public)
+medias-source/
+sauvegarde/
+*.jpg
+*.jpeg
+*.heic
+*.mp4
+*.mov

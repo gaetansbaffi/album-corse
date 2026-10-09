@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Voyage en Corse — Octobre 2026</title>
+  <meta name="description" content="L’album photo et vidéo de notre voyage en Corse, octobre 2026.">
+  <!-- Album privé : ne pas référencer dans les moteurs de recherche -->
+  <meta name="robots" content="noindex, nofollow, noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; media-src blob: http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; connect-src 'self' http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; object-src 'none'; base-uri 'none'; form-action 'none'">
+
+  <!-- Aperçu du lien dans WhatsApp, SMS, Messenger… (l'adresse de l'API est réglée par « npm run set-api-url ») -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Voyage en Corse — Octobre 2026">
+  <meta property="og:description" content="Mer, maquis et sentiers : l’album photo de notre voyage.">
+  <meta property="og:image" content="https://album-corse.album-corse.workers.dev/api/cover">
+  <meta property="og:image:alt" content="Une photo du voyage en Corse">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta name="theme-color" content="#0e4f5c">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#album">Aller aux photos</a>
+
+  <header class="topbar" id="topbar">
+    <a class="topbar__brand" href="#haut" aria-label="Haut de la page">
+      <span class="balise balise--small" aria-hidden="true"></span>
+      <span>Corse 2026</span>
+    </a>
+    <div class="topbar__actions">
+      <button class="icon-btn" type="button" data-action="slideshow" aria-label="Lancer le diaporama" title="Diaporama">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+      </button>
+      <button class="icon-btn" type="button" data-action="theme" aria-label="Passer en mode sombre" title="Clair / sombre">
+        <svg class="only-light" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        <svg class="only-dark" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" type="button" data-action="login" aria-label="Modifier l’album (réservé)" title="Modifier l’album">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="edit-bar" id="edit-bar" hidden></div>
+
+  <section class="hero" id="haut">
+    <div class="hero__inner">
+      <p class="hero__kicker">Carnet de voyage</p>
+      <h1 class="hero__title">Voyage en Corse</h1>
+      <p class="hero__date">Octobre 2026</p>
+      <p class="hero__stats" id="stats" aria-live="polite">Chargement de l’album…</p>
+      <div class="hero__cta">
+        <button class="btn btn--light" type="button" data-action="slideshow">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+          Lancer le diaporama
+        </button>
+        <a class="btn btn--ghost" href="#album">Voir les photos</a>
+      </div>
+    </div>
+    <svg class="hero__coast" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46c120-26 220 22 340 8s170-38 300-20 190 40 330 22 230-44 340-30 100 18 130 22V80H0z"/></svg>
+  </section>
+
+  <nav class="stages" id="stages" aria-label="Les journées du voyage" hidden>
+    <h2 class="stages__title">Les étapes</h2>
+    <ol class="stages__list" id="stages-list"></ol>
+  </nav>
+
+  <main id="album" class="album" tabindex="-1">
+    <noscript><p class="notice">Cet album a besoin de JavaScript pour s’afficher.</p></noscript>
+  </main>
+
+  <footer class="footer">
+    <p><span class="balise balise--small" aria-hidden="true"></span> Album familial privé — merci de ne pas partager le lien en dehors de la famille.</p>
+  </footer>
+
+  <!-- Visionneuse plein écran -->
+  <dialog class="viewer" id="viewer" aria-label="Visionneuse">
+    <div class="viewer__top">
+      <p class="viewer__count" id="viewer-count"></p>
+      <div class="viewer__tools">
+        <button class="icon-btn icon-btn--dark" type="button" data-viewer="play" aria-label="Lancer le diaporama">
+          <svg class="if-paused" aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+          <svg class="if-playing" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <button class="icon-btn icon-btn--dark" type="button" data-viewer="fullscreen" aria-label="Plein écran">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke-width="2"/></svg>
+        </button>
+        <button class="icon-btn icon-btn--dark" type="button" data-viewer="close" aria-label="Fermer la visionneuse">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="viewer__progress" aria-hidden="true"><span></span></div>
+    <div class="viewer__stage" id="viewer-stage"></div>
+    <button class="viewer__nav viewer__nav--prev" type="button" data-viewer="prev" aria-label="Photo précédente">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="viewer__nav viewer__nav--next" type="button" data-viewer="next" aria-label="Photo suivante">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="viewer__caption" id="viewer-caption" aria-live="polite"></div>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+</body>
+</html>
