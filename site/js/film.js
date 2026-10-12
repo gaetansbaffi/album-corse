@@ -587,6 +587,7 @@ function pause() {
 function bindUi() {
   ui.start.addEventListener('click', () => {
     ui.start.hidden = true;
+    document.getElementById('rotate-hint').hidden = true;
     ui.controls.hidden = false;
     if (offset >= duration - 0.1) offset = 0;
     play();
@@ -651,7 +652,7 @@ if (!CAPTURE) {
   ready.then(() => {
     ui.start.disabled = false;
     ui.label.textContent = `Lancer le film (${fmt(duration)})`;
-    renderAt(0.01);
+    renderAt(4.6); // image d'aperçu : le titre (la lecture repart bien du début)
   }).catch(() => {
     ui.label.textContent = 'Impossible de charger l’album. Vérifiez la connexion.';
   });
