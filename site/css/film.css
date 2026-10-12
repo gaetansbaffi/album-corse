@@ -1,0 +1,107 @@
+/* Film du voyage : une scène de 1920×1080 mise à l'échelle de l'écran. Toutes les animations sont pilotées
+   par js/film.js en fonction du temps (pour pouvoir aussi l'enregistrer image par image en MP4). */
+
+:root {
+  --sea: #0e4f5c;
+  --sea-2: #13707f;
+  --maquis: #3d5e3a;
+  --paper: #f6f1e6;
+  --ink: #1b2a2f;
+  --balise: #d1272f;
+  --gold: #ffe9b8;
+  --granite: #c9b9a3;
+  --hand: 'Caveat', 'Segoe Print', cursive;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden; font-family: var(--sans); }
+
+.viewport { position: fixed; inset: 0; overflow: hidden; background: #000; }
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: #000; }
+.scene { position: absolute; inset: 0; display: none; overflow: hidden; will-change: opacity; }
+.abs { position: absolute; }
+.fill { position: absolute; inset: 0; }
+.cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Fonds */
+.bg-sea { background: radial-gradient(ellipse at 25% 15%, rgb(255 255 255 / .12), transparent 55%), linear-gradient(160deg, #0b3f4a 0%, var(--sea-2) 50%, var(--maquis) 100%); }
+.bg-night { background: radial-gradient(ellipse at 50% 40%, #134a55, #061d23 75%); }
+.bg-paper { background: radial-gradient(ellipse at 50% 35%, #fbf7ee, #e9dfc9 80%); }
+.bg-table { background: radial-gradient(ellipse at 50% 30%, #e8dcc2, #b9a583 95%); }
+.contours svg { width: 100%; height: 100%; display: block; }
+.contours--ink svg { stroke: #0e4f5c; }
+.vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / .45) 100%); }
+
+/* Textes */
+.kicker { font: 600 30px/1 var(--sans); letter-spacing: .32em; text-transform: uppercase; }
+.title { font: 700 190px/1 var(--serif); letter-spacing: -.02em; white-space: nowrap; text-shadow: 0 6px 40px rgb(0 0 0 / .3); }
+.title span { display: inline-block; }
+.hand { font-family: var(--hand); font-weight: 700; }
+.center-x { left: 0; right: 0; text-align: center; }
+
+/* Balisage GR : blanc au-dessus du rouge */
+.balise { width: 120px; height: 88px; border-radius: 6px; background: linear-gradient(#fff 0 44%, transparent 44% 56%, var(--balise) 56% 100%); filter: drop-shadow(0 3px 0 rgb(0 0 0 / .15)); }
+.rock { width: 300px; height: 250px; display: grid; place-items: center; background: radial-gradient(ellipse at 35% 30%, #ddd0bd, var(--granite) 60%, #a8977f); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; box-shadow: inset 0 -14px 0 rgb(0 0 0 / .12), 0 30px 60px rgb(0 0 0 / .25); }
+
+/* Chapitre « Jour N » */
+.chapter__num { font: 700 150px/1 var(--hand); color: var(--balise); }
+.chapter__date { font: 700 96px/1.05 var(--serif); color: var(--ink); }
+.chapter__date::first-letter { text-transform: uppercase; }
+.chapter__title { font: 700 70px/1.1 var(--hand); color: #1f3a5f; }
+.chapter__meta { font: 500 36px/1.3 var(--sans); color: #4b5a5d; letter-spacing: .02em; }
+
+/* Étiquette « Jour N » en bas des photos */
+.tag { display: flex; align-items: center; gap: 18px; padding: 14px 26px 14px 18px; border-radius: 999px; background: rgb(8 20 24 / .62); font: 600 30px/1 var(--sans); letter-spacing: .04em; backdrop-filter: blur(6px); }
+.tag .balise { width: 42px; height: 31px; border-radius: 3px; }
+.caption-strip { padding: 10px 40px 14px; background: #f6f1e6; color: #1f3a5f; font: 700 56px/1.2 var(--hand); border-radius: 6px; box-shadow: 0 14px 40px rgb(0 0 0 / .35); max-width: 1300px; }
+
+/* Tirages photo */
+.print { position: absolute; background: #fffdf7; padding: 26px 26px 0; box-shadow: 0 30px 60px rgb(0 0 0 / .35), 0 2px 4px rgb(0 0 0 / .2); }
+.print img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.print__note { height: 110px; display: flex; align-items: center; justify-content: center; font: 700 52px/1 var(--hand); color: #1f3a5f; white-space: nowrap; overflow: hidden; }
+
+/* Carte postale */
+.postcard { position: absolute; background: #fffdf7; padding: 34px; box-shadow: 0 40px 80px rgb(0 0 0 / .35); }
+.postcard img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Timbre dentelé : des trous réguliers dont seuls ceux du bord restent visibles */
+.stamp { position: absolute; width: 210px; height: 254px; padding: 13px;
+  background: radial-gradient(circle, transparent 6px, #fffdf7 6.5px) -11px -11px / 22px 22px;
+  filter: drop-shadow(0 6px 8px rgb(0 0 0 / .25)); }
+.stamp__inner { width: 100%; height: 100%; background: linear-gradient(160deg, var(--sea-2), var(--maquis)); display: grid; place-items: center; text-align: center; color: #fff; font: 700 34px/1.05 var(--serif); }
+.stamp__inner small { display: block; font: 600 22px/1 var(--sans); letter-spacing: .2em; margin-top: 10px; }
+.postmark { position: absolute; width: 260px; height: 260px; border: 6px solid rgb(31 58 95 / .75); border-radius: 50%; display: grid; place-items: center; text-align: center; color: rgb(31 58 95 / .8); font: 700 30px/1.15 var(--sans); letter-spacing: .12em; }
+.postmark::before, .postmark::after { content: ""; position: absolute; left: -200px; width: 210px; height: 6px; background: repeating-linear-gradient(90deg, rgb(31 58 95 / .7) 0 60px, transparent 60px 80px); }
+.postmark::before { top: 95px; } .postmark::after { top: 150px; }
+
+/* Diptyque */
+.panel { position: absolute; overflow: hidden; border: 14px solid #fffdf7; box-shadow: 0 30px 70px rgb(0 0 0 / .45); }
+.panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Vidéo façon pellicule */
+.film-strip { position: absolute; top: 0; bottom: 0; width: 120px; background: #0b0b0b;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 34px, #e9e2d0 34px 64px, transparent 64px 98px);
+  background-size: 40px 98px; background-repeat: repeat-y; background-position: center 0; }
+.clip { position: absolute; background: #000; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 10px #1b1b1b, 0 40px 90px rgb(0 0 0 / .6); }
+.clip video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+.rec { display: flex; align-items: center; gap: 14px; font: 600 30px/1 var(--sans); letter-spacing: .15em; color: #fff; }
+.rec i { width: 22px; height: 22px; border-radius: 50%; background: #ff3b3b; display: inline-block; }
+
+/* Carte */
+.map-label { font: 600 30px/1 var(--sans); letter-spacing: .5em; text-transform: uppercase; color: rgb(255 255 255 / .55); }
+.dates-card { padding: 22px 36px; background: #f6f1e6; color: var(--ink); border-radius: 10px; box-shadow: 0 20px 50px rgb(0 0 0 / .35); font: 700 52px/1.1 var(--serif); }
+.dates-card small { display: block; font: 700 44px/1.1 var(--hand); color: var(--balise); margin-top: 6px; }
+
+/* Interface de lecture (absente en mode enregistrement) */
+.film-ui { position: fixed; inset: 0; pointer-events: none; }
+.start { pointer-events: auto; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 18px; padding: 22px 38px; border: 0; border-radius: 999px; background: #fff; color: var(--sea); font: 700 26px/1 var(--sans); cursor: pointer; box-shadow: 0 20px 60px rgb(0 0 0 / .5); }
+.start:disabled { opacity: .85; cursor: progress; }
+.start__icon { font-size: 30px; }
+.controls { pointer-events: auto; position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 14px max(16px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: linear-gradient(transparent, rgb(0 0 0 / .7)); opacity: 0; transition: opacity .3s; }
+.film-ui.show-controls .controls, .controls:focus-within { opacity: 1; }
+.ctrl { display: grid; place-items: center; min-width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgb(255 255 255 / .15); color: #fff; font-size: 20px; cursor: pointer; text-decoration: none; }
+.seek { flex: 1; min-width: 0; accent-color: #fff; height: 32px; }
+.time { font-variant-numeric: tabular-nums; min-width: 92px; text-align: right; font-size: 16px; }
+:focus-visible { outline: 3px solid #ffb26b; outline-offset: 3px; }
+.capture .film-ui { display: none; }

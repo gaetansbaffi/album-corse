@@ -298,6 +298,34 @@ Ensuite, envoyez `sortie.mp4` par le mode édition, ou placez-la dans un dossier
 7. **Nommer une journée** : sous la date, touchez **Donner un nom à cette journée** (par exemple « Bonifacio »).
 8. Le mode édition se ferme tout seul au bout de 12 heures. Il suffit alors de retaper le mot de passe. Touchez **Quitter** si vous prêtez votre téléphone.
 
+## Le film du voyage
+
+`site/film.html` est un petit film animé (environ 2 min 30) construit **automatiquement à partir de l'album**. Il contient :
+- une ouverture avec les courbes de niveau ;
+- la carte de la Corse ;
+- un chapitre « Jour N » par journée, avec la balise GR ;
+- les photos mises en scène : plein écran, tirages sur une table, carte postale tamponnée, diptyque ;
+- des extraits des vidéos dans un cadre de pellicule ;
+- une fin.
+
+Les légendes, lieux, noms de journées et dates corrigés par l'organisatrice y apparaissent tout seuls.
+
+- **Le voir dans le navigateur** : http://localhost:8080/film.html en local (avec `npm run dev:site`). En ligne, l'adresse est https://gaetansbaffi.github.io/album-corse/film.html une fois le fichier publié.
+- **Le (re)générer en vidéo MP4**, par exemple après que votre mère a ajouté des légendes. Avec `npm run dev:site` lancé dans une autre fenêtre :
+  ```powershell
+  npm run film
+  ```
+  Résultat : `film/voyage-en-corse.mp4` (1920×1080, sans son, environ 80 Mo), à partir de l'album **en ligne**. Comptez une dizaine de minutes. Le script utilise Chrome ou Edge déjà installé, sans fenêtre visible.
+- **Version légère pour WhatsApp** (720p, environ 16 Mo) :
+  ```powershell
+  .\node_modules\ffmpeg-static\ffmpeg.exe -i film\voyage-en-corse.mp4 -vf scale=1280:-2 -c:v libx264 -preset slow -crf 25 -pix_fmt yuv420p -movflags +faststart film\voyage-en-corse-whatsapp.mp4
+  ```
+- **Ajouter une musique** que vous avez le droit d'utiliser (par exemple `musique.mp3`) :
+  ```powershell
+  .\node_modules\ffmpeg-static\ffmpeg.exe -i film\voyage-en-corse.mp4 -i musique.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -b:a 160k -af "afade=t=out:st=140:d=6" -shortest film\voyage-en-corse-musique.mp4
+  ```
+  Remplacez `140` par la durée du film moins 7 secondes, pour que la musique s'éteigne en fondu.
+
 ## 10. Quotas et coûts
 
 Vérifiés le 9 octobre 2026 dans les documentations officielles.

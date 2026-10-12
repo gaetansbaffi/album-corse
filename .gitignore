@@ -12,6 +12,7 @@ worker/.dev.vars
 # Photos et vidéos : elles vivent dans Cloudflare R2, PAS dans le dépôt (qui est public)
 medias-source/
 sauvegarde/
+film/
 *.jpg
 *.jpeg
 *.heic

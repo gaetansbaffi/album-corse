@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Le film du voyage — Corse 2026</title>
+  <meta name="robots" content="noindex, nofollow, noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; media-src blob: http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; connect-src 'self' http://127.0.0.1:8787 https://album-corse.album-corse.workers.dev; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta property="og:title" content="Le film du voyage en Corse — Octobre 2026">
+  <meta property="og:image" content="https://album-corse.album-corse.workers.dev/api/cover">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
+  <link rel="stylesheet" href="css/film.css">
+  <script src="js/config.js"></script>
+  <script type="module" src="js/film.js"></script>
+</head>
+<body>
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage" aria-hidden="true"></div>
+  </div>
+
+  <div class="film-ui" id="film-ui">
+    <button class="start" id="start" type="button" disabled>
+      <span class="start__icon" aria-hidden="true">▶</span>
+      <span class="start__label" id="start-label">Chargement des photos…</span>
+    </button>
+    <div class="controls" id="controls" hidden>
+      <button class="ctrl" id="play" type="button" aria-label="Pause">❚❚</button>
+      <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Position dans le film">
+      <span class="time" id="time">0:00</span>
+      <button class="ctrl" id="fs" type="button" aria-label="Plein écran">⛶</button>
+      <a class="ctrl back" href="./" aria-label="Retour à l’album">✕</a>
+    </div>
+  </div>
+</body>
+</html>
