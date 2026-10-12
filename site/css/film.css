@@ -96,7 +96,7 @@ html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: h
 
 /* Interface de lecture (absente en mode enregistrement) */
 .film-ui { position: fixed; inset: 0; pointer-events: none; }
-.start { pointer-events: auto; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 18px; padding: 22px 38px; border: 0; border-radius: 999px; background: #fff; color: var(--sea); font: 700 26px/1 var(--sans); cursor: pointer; box-shadow: 0 20px 60px rgb(0 0 0 / .5); }
+.start { pointer-events: auto; position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%); display: flex; align-items: center; gap: 18px; padding: 22px 38px; border: 0; border-radius: 999px; background: #fff; color: var(--sea); font: 700 26px/1 var(--sans); cursor: pointer; box-shadow: 0 20px 60px rgb(0 0 0 / .5); }
 .start { white-space: nowrap; }
 .start:disabled { opacity: .85; cursor: progress; }
 .rotate-hint { position: absolute; left: 0; right: 0; bottom: calc(24px + env(safe-area-inset-bottom)); text-align: center; font-size: 16px; color: rgb(255 255 255 / .75); display: none; }
